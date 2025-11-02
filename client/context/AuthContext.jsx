@@ -2,20 +2,22 @@ import { createContext, useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { io } from "socket.io-client";
+import { Navigate } from "react-router-dom";
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL;
 axios.defaults.baseURL = backendUrl;
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
+
     const [token, setToken] = useState(localStorage.getItem("token"));
-    const [authUSer, setAuthUser] = useState(null);
+    const [authUser, setAuthUser] = useState(null);
     const [onlineUser, setOnlineUsers] = useState([]);
     const [socket, setSocket] = useState(null);
 
     const checkAuth = async () => {
         try {
-            const { data } = await axios.get(backendUrl + "/api/auth/check");
+            const { data } = await axios.get("/api/auth/check");
             if (data.success) {
                 setAuthUser(data.user);
                 connectSocket(data.user);
@@ -97,7 +99,7 @@ export const AuthProvider = ({ children }) => {
 
     const value = {
         axios,
-        authUSer,
+        authUser,
         onlineUser,
         socket,
         login,

@@ -1,15 +1,30 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import assets from "../assets/assets";
 import { useNavigate } from "react-router-dom";
 
 const ProfilePage = () => {
+
+  const { authUser, updateProfile } = useContext(AuthContext)
+
   const [selectedImg, setSelectedImg] = useState(null);
   const navigate = useNavigate();
   const [name, setName] = useState("Martin Johnson");
   const [bio, setBio] = useState("Hi Everyone, I am Using QuickChat");
-  const handleSumbit = (e) => {
+
+  const handleSumbit = async (e) => {
     e.preventDefault();
-    navigate("/");
+    if (!selectedImg) {
+      await updateProfile({ fullName: name, bio })
+      navigate("/");
+    }
+
+    const reader = new FileReader()
+    reader.readAsDataURL(selectedImg)
+    reader.onload = async () => {
+      const base64Image = reader.result
+      await updateProfile({ProfilePage: base64Image, fullName: name, bio})
+      navigate('/ ')
+    }
   };
   return (
     <div className="min-h-screen bg-cover bg-no-repeat flex items-center justify-center">

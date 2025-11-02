@@ -1,8 +1,13 @@
 import React, { useContext, useState } from "react";
 import assets from "../assets/assets";
 import { AuthContext } from "../../context/AuthContext";
+import { Navigate } from "react-router-dom";
+
 
 const LoginPage = () => {
+
+  const { authUser } = useContext(AuthContext);
+
   const [currState, setCurrState] = useState("Sign up");
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -25,8 +30,8 @@ const LoginPage = () => {
       password,
       bio,
     });
-  };
-
+  }
+  
   return (
     <div className="min-h-screen bg-cover bg-center flex items-center justify-center gap-8 sm:justify-evenly max-sm:flex-col backdrop-blur-2xl">
       {/* left */}
