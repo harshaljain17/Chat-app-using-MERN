@@ -1,26 +1,26 @@
-import User from "../models/user.model.js"
-import jwt from "jsonwebtoken"
+import jwt from "jsonwebtoken";
+import User from "../models/User.js";
 
-// the frontend req first talks to this middleware then goes to authCheck controller
-// Middleware to protect routes
 export const protectRoute = async (req, res, next) => {
     try {
+        const token = req.headers.token;
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        const token = req.headers.token        // headers tell backend extra info about the req like metadata
+        const user = await User.findById(decoded.userId).select("-password");
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET)
+        if (!user) {
+            res.json({
+                success: false,
+                message: "Unauthrized",
+            });
+        }
 
-        const user = await User.findById(decoded.userId).select(
-            "-password"
-        )
-
-        if (!user) return res.json({ success: false, message: "User not found" })
-
-        req.user = user      // if the user is authenticated req.user will get the user model except password for security 
-        next()               // calls the authCheck controller from here
-
+        req.user = user;
+        next();
     } catch (error) {
-        console.log(error.message)
-        res.json({ success: false, message: error.message })
+        return res.json({
+            success: false,
+            message: error.message,
+        });
     }
-}
+};

@@ -53,8 +53,8 @@ const ChatContainer = ({ selectedUser, setSelectedUser }) => {
                         ) : (
                             <p
                                 className={`p-2 max-w-[200px] md:text-sm font-light rounded-lg mb-8 break-all bg-violet-500/30 text-white ${msg.senderId === "680f50e4f10f3cd28382ecf9"
-                                    ? "rounded-br-none"
-                                    : "rounded-bl-none"
+                                        ? "rounded-br-none"
+                                        : "rounded-bl-none"
                                     }`}
                             >
                                 {msg.text}
@@ -107,8 +107,8 @@ const ChatContainer = ({ selectedUser, setSelectedUser }) => {
         </div>
     ) : (
         <div className="flex flex-col items-center justify-center gap-2 text-gray-500 bg-white/10 max-md:hidden">
-            <img src={assets.logo} alt="logo" className="max-w-50" />
-            <p className="text-s font-medium text-white">Chat anytime, anywhere</p>
+            <img src={assets.logo} alt="logo" className="max-w-16" />
+            <p className="text-lg font-medium text-white">Chat anytime, anywhere</p>
         </div>
     );
 };

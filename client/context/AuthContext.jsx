@@ -1,64 +1,50 @@
 import { createContext, useEffect, useState } from "react";
-import axios from 'axios'
+import axios from "axios";
 import toast from "react-hot-toast";
-import io from "socket.io-client"
+import { io } from "socket.io-client";
 
-const backendUrl = import.meta.env.VITE_BACKEND_URL
-axios.defaults.baseURL = backendUrl                        // sets a default base URL so subsequent axios calls can use relative paths
-
-export const AuthContext = createContext()                 // Create and export a React context object so any consumer can access authentication state and helpers.
+const backendUrl = import.meta.env.VITE_BACKEND_URL;
+axios.defaults.baseURL = backendUrl;
+export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
+    const [token, setToken] = useState(localStorage.getItem("token"));
+    const [authUSer, setAuthUser] = useState(null);
+    const [onlineUser, setOnlineUsers] = useState([]);
+    const [socket, setSocket] = useState(null);
 
-    const [token, setToken] = useState(localStorage.getItem("token"))
-    const [authUser, setAuthUser] = useState(null)
-    const [onlineUser, setOnlineUser] = useState([])
-    const [socket, setSocket] = useState(null)
-
-    // Check if user is authenticated and if so, set the user data and connect the socket
     const checkAuth = async () => {
         try {
-
-            // takes the control to backend /check route that is first goes to middleware auth.js(protectRoute fnc) then authCheck 
-            // controller then the controller sends a res to frontend i.e. here cycle complete
-            const { data } = await axios.get("/api/auth/check")     // now data variable is equal to req.user both are objects 
+            const { data } = await axios.get(backendUrl + "/api/auth/check");
             if (data.success) {
-                setAuthUser(data.user)
-                connectSocket(data.user)
+                setAuthUser(data.user);
+                connectSocket(data.user);
             }
         } catch (error) {
-            toast.error(error.message)
+            toast.error(error.message);
         }
-    }
+    };
 
-    // state and credentials are parameters of the login() function.
-    // They are passed from the component that calls login() (like your login or register page).
-    // state decides which route to call (login or register).
-    // credentials carries the user form data.
     const login = async (state, credentials) => {
         try {
             const { data } = await axios.post(
                 backendUrl + `/api/auth/${state}`,
                 credentials
             );
-
-            console.log("Signup response:", data);
             if (data.success) {
-                setAuthUser(data.userData)
-                setSocket(data.userData)
-
-                axios.defaults.headers.common["token"] = data.token   // saves token as a header in the frontend 
+                setAuthUser(data.userData);
+                connectSocket(data.userData);
+                axios.defaults.headers.common["token"] = data.token;
                 setToken(data.token);
-
-                localStorage.setItem("token", data.token)
-                toast.success(data.message)
+                localStorage.setItem("token", data.token);
+                toast.success(data.message);
             } else {
-                toast.error(data.message)
+                toast.error(data.message);
             }
         } catch (error) {
-            toast.error(error.message)
+            toast.error(error.message);
         }
-    }
+    };
 
     const logout = async () => {
         localStorage.removeItem("token");
@@ -84,44 +70,40 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    // Connect socket function to handle socket connection and online users updates
     const connectSocket = (userData) => {
         if (!userData || socket?.connected) return;
-        const newSocket = io(backendUrl, {
-            query: {
-                userId: userData._id
-            }
-        })
-        newSocket.connect()
-        setSocket(newSocket)
 
-        newSocket.on("getOnlineUsers", (userId) => {
-            setOnlineUser(userIds);
-        })
-    }
+        const newSocket = io(backendUrl, {
+            query: { userId: userData._id },
+        });
+
+        setSocket(newSocket);
+
+        newSocket.on("connect", () => {
+            console.log("Socket connected");
+        });
+
+        newSocket.on("getOnlineUsers", (userIds) => {
+            setOnlineUsers(userIds);
+        });
+    };
 
     useEffect(() => {
         if (token) {
             axios.defaults.headers.common["token"] = token;
         }
-        checkAuth()
-    }, [])
+        checkAuth();
+    }, []);
 
     const value = {
         axios,
-        authUser,
+        authUSer,
         onlineUser,
         socket,
         login,
         logout,
-        updateProfile
-    }
+        updateProfile,
+    };
 
-    return (
-        <AuthContext.Provider value={value}>
-            {children}
-        </AuthContext.Provider>
-    )
-}
-
-
+    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
