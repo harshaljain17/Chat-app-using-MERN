@@ -111,6 +111,7 @@ export const updateProfile = async (req, res) => {
             success: true,
             user: updatedUser,
         });
+        
     } catch (error) {
         console.log(error.message);
         return res.json({
