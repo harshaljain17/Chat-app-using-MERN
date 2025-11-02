@@ -8,17 +8,21 @@ const Sidebar = () => {
 
     const { getUsers, users, selectedUser, setSelectedUser, unseenMessages, setUnseenMessages } = useContext(chatContext)
 
-    const { logout, onlineUsers } = useContext(AuthContext)
+    const { logout, onlineUser } = useContext(AuthContext)
 
     const [input, setInput] = useState(false)
 
     const navigate = useNavigate();
 
-    const filteredUsers = input ? users.filter((user) => user.fullName.toLowerCase().include(input.toLowerCase())) : users;
+    const filteredUsers = input
+        ? users.filter((user) =>
+            user.fullname.toLowerCase().includes(input.toLowerCase())
+        )
+        : users;
 
     useEffect(() => {
         getUsers()
-    }, [onlineUsers])
+    }, [onlineUser])
 
     return (
         <div
@@ -73,14 +77,16 @@ const Sidebar = () => {
                             alt=""
                             className="w-[35px] aspect-[1/1] rounded-full"
                         />
+
                         <div className="flex flex-col leading-5">
-                            <p>{user.fullName}</p>
-                            {
-                                onlineUsers.includes(user._id)
-                                    ? <span className="text-green-400 text-xs">Online</span>
-                                    : <span className="text-neutral-400 text-xs">Offline</span>
-                            }
+                            <p>{user.fullname}</p>
+                            {onlineUser.includes(user._id) ? (
+                                <span className="text-green-400 text-xs">Online</span>
+                            ) : (
+                                <span className="text-neutral-400 text-xs">Offline</span>
+                            )}
                         </div>
+
                         {unseenMessages[user._id] > 0 && (
                             <p className="absolute top-4 right-4 text-xs h-5 w-5 flex justify-center items-center rounded-full bg-violet-500/50">
                                 {unseenMessages[user._id]}
