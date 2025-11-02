@@ -16,8 +16,8 @@ export const protectRoute = async (req, res, next) => {
 
         if (!user) return res.json({ success: false, message: "User not found" })
 
-        req.user = user
-        next()
+        req.user = user      // if the user is authenticated req.user will get the user model except password for security 
+        next()               // calls the authCheck controller from here
 
     } catch (error) {
         console.log(error.message)

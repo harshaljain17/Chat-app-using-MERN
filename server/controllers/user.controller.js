@@ -59,13 +59,13 @@ export const login = async () => {
 
         console.log(error.message)
         res.json({ success: false, message: error.message, })
-    }
 
+    }
 }
 
 // Controller to check if user is authenticated
 export const checkAuth = async (req, res) => {                 // frontend --> middleware(auth.js) --> checkAuth controller
-    res.json({ succes: true, user: req.user })
+    res.json({ success: true, user: req.user })                // we are returning user model i.e. user details to frontend from here in a object called user
 }
 
 // Controller to update user profile details
