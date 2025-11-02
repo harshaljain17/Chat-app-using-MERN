@@ -2,9 +2,12 @@ import mongoose from "mongoose";
 import User from "../models/user.model.js";
 import { generateToken } from "../lib/utils.js";
 import cloudinary from '../lib/cloudinary.js'
+import bcrypt from 'bcryptjs'
 
 // Controller to signup new user
-export const signup = async () => {
+export const signup = async (req, res) => {
+
+    console.log("Signup body:", req.body);
 
     const { fullName, email, password, bio } = req.body
 
@@ -15,7 +18,7 @@ export const signup = async () => {
         }
 
         const user = await User.findOne({ email })
-        if (!user) {
+        if (user) {
             return res.json({ success: false, message: "Account already exists" })
         }
 
@@ -39,29 +42,40 @@ export const signup = async () => {
 }
 
 // Controller to login new user
-export const login = async () => {
-
+export const login = async (req, res) => {
     try {
+        const { email, password } = req.body;
 
-        const { email, password, } = req.body
-        const userData = await User.findOne({ email })
-
-        const isPasswordCorrect = await bcrypt.compare(password, userData.password)
-        if (!isPasswordCorrect) {
-            res.json({ success: false, message: "Wrong Password" })
+        // Check if user exists
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.json({ success: false, message: "User not found" });
         }
 
-        const token = generateToken(newUser._id)
+        // Compare password
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) {
+            return res.json({ success: false, message: "Invalid password" });
+        }
 
-        res.json({ succes: true, userData: newUser, token, message: "Logged in succesfully" })
+        // Generate token
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+            expiresIn: "7d",
+        });
 
+        res.json({
+            success: true,
+            message: "Login successful",
+            token,
+            userData: user,
+        });
     } catch (error) {
-
-        console.log(error.message)
-        res.json({ success: false, message: error.message, })
-
+        console.error("Login error:", error);
+        res
+            .status(500)
+            .json({ success: false, message: error.message || "Server error" });
     }
-}
+};
 
 // Controller to check if user is authenticated
 export const checkAuth = async (req, res) => {                 // frontend --> middleware(auth.js) --> checkAuth controller

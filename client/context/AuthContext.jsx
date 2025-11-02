@@ -4,7 +4,7 @@ import toast from "react-hot-toast";
 import io from "socket.io-client"
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL
-axios.defaults.baseUrl = backendUrl                        // sets a default base URL so subsequent axios calls can use relative paths
+axios.defaults.baseURL = backendUrl                        // sets a default base URL so subsequent axios calls can use relative paths
 
 export const AuthContext = createContext()                 // Create and export a React context object so any consumer can access authentication state and helpers.
 
@@ -42,6 +42,7 @@ export const AuthProvider = ({ children }) => {
                 credentials
             );
 
+            console.log("Signup response:", data);
             if (data.success) {
                 setAuthUser(data.userData)
                 setSocket(data.userData)
@@ -55,7 +56,7 @@ export const AuthProvider = ({ children }) => {
                 toast.error(data.message)
             }
         } catch (error) {
-            toast.error(data.message)
+            toast.error(error.message)
         }
     }
 

@@ -36,10 +36,6 @@ io.on("connection", (socket) => {
 app.use(express.json({ limit: "4mb" }));
 app.use(cors());
 
-app.use("/", (req, res) => {
-    res.send("Server is live");
-});
-
 app.use("/api/auth", userRouter);
 app.use("/api/messages", messageRouter);
 
@@ -49,4 +45,8 @@ const port = process.env.PORT || 5000;
 
 app.listen(port, () => {
     console.log(`Server is live on http://localhost:${port}`);
+});
+
+app.use("/", (req, res) => {
+    res.send("Server is live");
 });
